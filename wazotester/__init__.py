@@ -121,75 +121,76 @@ def wazotester(
     else:
         click.echo("Skipping setup...")
 
-    workers = config_data.get('workers')
-    if workers is None:
-        click.echo("No worker has been defined, quit!")
-        raise click.Abort()
+    try:
+        workers = config_data.get('workers')
+        if workers is None:
+            click.echo("No worker has been defined, quit!")
+            raise click.Abort()
 
-    testers = []
-    for i, worker_config in enumerate(workers):
-        number_of_workers = get_int_from_config(worker_config, 'number', 1)
+        testers = []
+        for i, worker_config in enumerate(workers):
+            number_of_workers = get_int_from_config(worker_config, 'number', 1)
 
-        for j in range(number_of_workers):
-            if worker_config.get('type', 'sipp') == 'sipp':
-                tester = SippWorker(
-                    worker_id="%06d_%06d" % (i, j),
-                    config=worker_config,
-                    target=target,
-                    executable=executable,
-                    directory=directory,
-                    basedir=basedir,
-                    log=click.echo,
-                    stored_responses=stored_responses,
-                )
-            tester.setup()
-            testers.append(tester)
-
-    click.echo("\nStarting workers:")
-    threads = []
-    for tester in testers:
-        t = threading.Thread(target=tester)
-        threads.append(t)
-        t.start()
-
-    for t in threads:
-        t.join()
-
-    click.echo("\nWorkers' results:")
-    error = False
-    for tester in testers:
-        tester.debug()
-        exit_status = tester.get_exit_status()
-        if exit_status != 0:
-            error = True
-        tester.teardown()
-
-    if error:
-        raise click.Abort("\nError detected, aborted!")
-    else:
-        if remove_directory_when_done:
-            shutil.rmtree(directory)
-        click.echo("\nDone!")
-
-    teardown = config_data.get('teardown', None)
-    if not no_teardown and setup is not None:
-        for i, teardown_config in enumerate(teardown):
-            if teardown_config.get('type', 'api') == 'api':
-                if apiurl is None:
-                    click.echo("No API has been defined, quit!")
-                    raise click.Abort()
-                store_response = teardown_config.get('store_response', None)
-                if store_response:
-                    stored_responses[store_response] = api_client(
-                        apiurl=apiurl,
-                        config=teardown_config,
+            for j in range(number_of_workers):
+                if worker_config.get('type', 'sipp') == 'sipp':
+                    tester = SippWorker(
+                        worker_id="%06d_%06d" % (i, j),
+                        config=worker_config,
+                        target=target,
+                        executable=executable,
+                        directory=directory,
+                        basedir=basedir,
+                        log=click.echo,
                         stored_responses=stored_responses,
                     )
-                else:
-                    api_client(
-                        apiurl=apiurl,
-                        config=teardown_config,
-                        stored_responses=stored_responses,
-                    )
-    else:
-        click.echo("Skipping teardown procedure...")
+                tester.setup()
+                testers.append(tester)
+
+        click.echo("\nStarting workers:")
+        threads = []
+        for tester in testers:
+            t = threading.Thread(target=tester)
+            threads.append(t)
+            t.start()
+
+        for t in threads:
+            t.join()
+
+        click.echo("\nWorkers' results:")
+        error = False
+        for tester in testers:
+            tester.debug()
+            exit_status = tester.get_exit_status()
+            if exit_status != 0:
+                error = True
+            tester.teardown()
+
+        if error:
+            raise click.Abort("\nError detected, aborted!")
+        else:
+            if remove_directory_when_done:
+                shutil.rmtree(directory)
+            click.echo("\nDone!")
+    finally:
+        teardown = config_data.get('teardown', None)
+        if not no_teardown and setup is not None:
+            for i, teardown_config in enumerate(teardown):
+                if teardown_config.get('type', 'api') == 'api':
+                    if apiurl is None:
+                        click.echo("No API has been defined, quit!")
+                        raise click.Abort()
+                    store_response = teardown_config.get('store_response', None)
+                    if store_response:
+                        stored_responses[store_response] = api_client(
+                            apiurl=apiurl,
+                            config=teardown_config,
+                            stored_responses=stored_responses,
+                        )
+                    else:
+                        api_client(
+                            apiurl=apiurl,
+                            config=teardown_config,
+                            stored_responses=stored_responses,
+                        )
+        else:
+            click.echo("Skipping teardown procedure...")
