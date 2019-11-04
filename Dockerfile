@@ -16,8 +16,8 @@ RUN apk add --update \
     python3 \
     py-pip
 
-RUN pip3 install pytest
-RUN pip3 install --extra-index-url https://pypi.k8s.wazo.cloud wazotester
+COPY ./dist/wazotester-1.0.tar.gz /wazotester-1.0.tar.gz
+RUN pip3 install /wazotester-1.0.tar.gz
 
 COPY ./scripts/wait-for /usr/bin/wait-for
 RUN chmod +x /usr/bin/wait-for

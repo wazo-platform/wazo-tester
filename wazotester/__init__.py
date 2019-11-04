@@ -1,4 +1,6 @@
 import os
+import signal
+import sys
 import click
 import random
 import shutil
@@ -23,7 +25,7 @@ from .sipp import SippWorker
 @click.option(
     '-t',
     '--target',
-    default='kamailio:5060',
+    default='sbc:5060',
     type=click.STRING,
     required=False,
     help='IP address of the SIP server to use as target',
@@ -49,7 +51,12 @@ from .sipp import SippWorker
     default=None,
     help='Initialize the Python random machine with this seed value.',
 )
-@click.option('-a', '--apiurl', default='http://router-confd:8000', show_default=True)
+@click.option(
+    '-a',
+    '--apiurl',
+    default='http://router-confd:8000',
+    show_default=True
+)
 @click.option(
     "--no-setup",
     is_flag=True,
@@ -121,6 +128,9 @@ def wazotester(
     else:
         click.echo("Skipping setup...")
 
+    def _do_teardown(sig=None, frame=None):
+        do_teardown(config_data, no_teardown, apiurl, stored_responses)
+    signal.signal(signal.SIGINT, _do_teardown)
     try:
         workers = config_data.get('workers')
         if workers is None:
@@ -172,25 +182,35 @@ def wazotester(
                 shutil.rmtree(directory)
             click.echo("\nDone!")
     finally:
-        teardown = config_data.get('teardown', None)
-        if not no_teardown and setup is not None:
-            for i, teardown_config in enumerate(teardown):
-                if teardown_config.get('type', 'api') == 'api':
-                    if apiurl is None:
-                        click.echo("No API has been defined, quit!")
-                        raise click.Abort()
-                    store_response = teardown_config.get('store_response', None)
-                    if store_response:
-                        stored_responses[store_response] = api_client(
-                            apiurl=apiurl,
-                            config=teardown_config,
-                            stored_responses=stored_responses,
-                        )
-                    else:
-                        api_client(
-                            apiurl=apiurl,
-                            config=teardown_config,
-                            stored_responses=stored_responses,
-                        )
-        else:
-            click.echo("Skipping teardown procedure...")
+        _do_teardown()
+
+
+def do_teardown(
+    config_data,
+    no_teardown,
+    apiurl,
+    stored_responses
+):
+    click.echo("Starting teardown process...")
+    teardown = config_data.get('teardown', None)
+    if not no_teardown and teardown is not None:
+        for i, teardown_config in enumerate(teardown):
+            if teardown_config.get('type', 'api') == 'api':
+                if apiurl is None:
+                    click.echo("No API has been defined, quit!")
+                    raise click.Abort()
+                store_response = teardown_config.get('store_response', None)
+                if store_response:
+                    stored_responses[store_response] = api_client(
+                        apiurl=apiurl,
+                        config=teardown_config,
+                        stored_responses=stored_responses,
+                    )
+                else:
+                    api_client(
+                        apiurl=apiurl,
+                        config=teardown_config,
+                        stored_responses=stored_responses,
+                    )
+    else:
+        click.echo("Skipping teardown procedure...")
