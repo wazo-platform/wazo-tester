@@ -16,6 +16,8 @@ RUN apk add --update \
     python3 \
     py-pip
 
+RUN pip3 install pytest
+
 COPY ./dist/wazotester-1.0.tar.gz /wazotester-1.0.tar.gz
 RUN pip3 install /wazotester-1.0.tar.gz
 
