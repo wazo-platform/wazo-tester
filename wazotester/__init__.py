@@ -3,7 +3,9 @@ import signal
 import sys
 import click
 import random
+import requests
 import shutil
+import time
 import tempfile
 import threading
 
@@ -51,12 +53,7 @@ from .sipp import SippWorker
     default=None,
     help='Initialize the Python random machine with this seed value.',
 )
-@click.option(
-    '-a',
-    '--apiurl',
-    default='http://router-confd:8000',
-    show_default=True
-)
+@click.option('-a', '--apiurl', default='http://router-confd:8000', show_default=True)
 @click.option(
     "--no-setup",
     is_flag=True,
@@ -130,7 +127,9 @@ def wazotester(
 
     def _do_teardown(sig=None, frame=None):
         do_teardown(config_data, no_teardown, apiurl, stored_responses)
+
     signal.signal(signal.SIGINT, _do_teardown)
+
     try:
         workers = config_data.get('workers')
         if workers is None:
@@ -138,6 +137,7 @@ def wazotester(
             raise click.Abort()
 
         testers = []
+        other_threads = []
         for i, worker_config in enumerate(workers):
             number_of_workers = get_int_from_config(worker_config, 'number', 1)
 
@@ -151,10 +151,14 @@ def wazotester(
                         directory=directory,
                         basedir=basedir,
                         log=click.echo,
-                        stored_responses=stored_responses,
                     )
-                tester.setup()
-                testers.append(tester)
+                    tester.setup()
+                    testers.append(tester)
+                elif worker_config.get('type', None) == 'kamailio_xhttp':
+                    thread = threading.Thread(
+                        target=kamailioXHTTP, args=(worker_config,)
+                    )
+                    other_threads.append(thread)
 
         click.echo("\nStarting workers:")
         threads = []
@@ -163,7 +167,13 @@ def wazotester(
             threads.append(t)
             t.start()
 
+        for t in other_threads:
+            t.start()
+
         for t in threads:
+            t.join()
+
+        for t in other_threads:
             t.join()
 
         click.echo("\nWorkers' results:")
@@ -185,12 +195,20 @@ def wazotester(
         _do_teardown()
 
 
-def do_teardown(
-    config_data,
-    no_teardown,
-    apiurl,
-    stored_responses
-):
+def kamailioXHTTP(config):
+    delay = config.get('delay', 0)
+    if delay:
+        time.sleep(delay)
+    if config.get('method', "POST") == 'POST':
+        uri = config.get('uri', "")
+        payload = config.get('payload', {})
+        response = requests.post(uri, json=payload)
+        if response.status_code != 200:
+            print(response.text)
+            sys.exit(1)
+
+
+def do_teardown(config_data, no_teardown, apiurl, stored_responses):
     click.echo("Starting teardown process...")
     teardown = config_data.get('teardown', None)
     if not no_teardown and teardown is not None:
@@ -212,5 +230,8 @@ def do_teardown(
                         config=teardown_config,
                         stored_responses=stored_responses,
                     )
+            elif teardown_config.get('type', None) == 'kamailio_xhttp':
+                kamailioXHTTP(teardown_config)
+
     else:
         click.echo("Skipping teardown procedure...")

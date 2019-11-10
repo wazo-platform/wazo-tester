@@ -62,18 +62,43 @@ teardown:
   - type: api
     method: DELETE
     uri: "/tenants/{tenant.id}"
+  - type: kamailio_xhttp
+    uri: http://router_secondary:8000/rpc
+    method: POST
+    payload:
+      jsonrpc: "2.0"
+      method: "pv.shvSet"
+      params:
+        name: "router_off"
+        type: "int"
+        value: 0
+      id: "1"
     
 workers:
-- scenario: "basic.xml"
-  number: 1
-  repeat: 2
-  timeout: 600
-  call_rate: 1
-  call_rate_period: 1000
-  call_limit: 1
-  call_number: 1
-  values:
-    call_duration: 1000
-    to_user: "019040123456"
-    to_domain: "{domain.domain}"
-    to_port: "5060"
+  - type: sipp
+    scenario: "basic.xml"
+    number: 1
+    repeat: 2
+    timeout: 600
+    call_rate: 1
+    call_rate_period: 1000
+    call_limit: 1
+    call_number: 1
+    values:
+      call_duration: 1000
+      to_user: "019040123456"
+      to_domain: "{domain.domain}"
+      to_port: "5060"
+  - type: kamailio_xhttp
+    uri: http://router:8000/rpc
+    method: POST
+    delay: 10
+    payload:
+      jsonrpc: "2.0"
+      method: "pv.shvSet"
+      params:
+        name: "router_off"
+        type: "int"
+        value: 1
+      id: "1"
+  

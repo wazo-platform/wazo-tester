@@ -7,3 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 1.0.0
 - Initial release
+
+## 1.1.0
+- Add kamailio_xhttp functionality for disabling nodes. Used for testing failovers.
