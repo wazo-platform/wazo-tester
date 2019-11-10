@@ -151,6 +151,7 @@ def wazotester(
                         directory=directory,
                         basedir=basedir,
                         log=click.echo,
+                        stored_responses=stored_responses,
                     )
                     tester.setup()
                     testers.append(tester)
