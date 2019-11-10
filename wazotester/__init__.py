@@ -232,6 +232,7 @@ def do_teardown(config_data, no_teardown, apiurl, stored_responses):
                     )
             elif teardown_config.get('type', None) == 'kamailio_xhttp':
                 kamailioXHTTP(teardown_config)
+                time.sleep(5)
 
     else:
         click.echo("Skipping teardown procedure...")

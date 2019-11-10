@@ -18,8 +18,8 @@ RUN apk add --update \
 
 RUN pip3 install pytest
 
-COPY ./dist/wazotester-1.0.tar.gz /wazotester-1.0.tar.gz
-RUN pip3 install /wazotester-1.0.tar.gz
+COPY ./dist/wazotester-1.1.tar.gz /wazotester-1.1.tar.gz
+RUN pip3 install /wazotester-1.1.tar.gz
 
 COPY ./scripts/wait-for /usr/bin/wait-for
 RUN chmod +x /usr/bin/wait-for
