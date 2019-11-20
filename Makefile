@@ -1,6 +1,5 @@
 .PHONY: dockerfile
 dockerfile:
-	make dist
 	docker build --no-cache -t wazopbx/wazo-tester:latest -f Dockerfile .
 
 .PHONY: venv
