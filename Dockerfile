@@ -29,11 +29,15 @@ RUN apk add --update \
     sipsak \
     sipp \
     curl \
+    vim \
+    nano \
     jq \
     python3 \
     py-pip
 RUN pip3 install pytest
 COPY --from=0 /dist /dist
 RUN pip3 install /dist/wazotester-1.1-py3-none-any.whl && rm -r /dist/
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+RUN apk add --update consul-template && rm -rf /var/lib/apt/lists/*
 COPY ./scripts/wait-for /usr/bin/wait-for
 RUN chmod +x /usr/bin/wait-for
