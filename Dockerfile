@@ -1,19 +1,8 @@
-FROM python:3.8.0-alpine3.10
-WORKDIR /
+FROM python:3.7-alpine
+RUN apk add gcc python3-dev musl-dev make
 COPY . /
-RUN apk update \
-    && apk add --virtual build-dependencies \
-        build-base \
-        gcc \
-        make \
-        git \
-    && apk add \
-        bash \
-        python3 \
-        py-pip \
-        make
-RUN make setup
-RUN make dist
+WORKDIR /
+RUN make setup dist
 
 
 FROM python:3.8.0-alpine3.10

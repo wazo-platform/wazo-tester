@@ -1,3 +1,10 @@
+.git
+.gitignore
+.editorconfig
+.pylintrc
+*.md
+!README.md
+coverage.xml
 build/
 data/
 dist/
