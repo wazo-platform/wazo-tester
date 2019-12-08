@@ -16,6 +16,7 @@ RUN true && \
         iproute2 \
         sip-tester \
         net-tools \
+        iputils-ping \
         nano \
         vim \
         netcat \
