@@ -15,6 +15,7 @@ RUN true && \
         bash \
         iproute2 \
         sip-tester \
+        net-tools \
         nano \
         vim \
         netcat \
