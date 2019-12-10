@@ -43,10 +43,9 @@ def api_client(apiurl: str, config: dict, stored_responses: dict):
     if method == 'POST':
         response = requests.post("%s%s" % (apiurl, uri), json=payload)
         if response.status_code != 200:
-            print(response.text)
             sys.exit(1)
         data = json.loads(response.text)
-        if data.get("id"):
+        if isinstance(data, dict):
             return data
         else:
             return None
