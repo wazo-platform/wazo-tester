@@ -20,6 +20,7 @@ RUN true && \
         nano \
         vim \
         jq \
+        redis-tools \
         watch \
         screen \
         netcat \
