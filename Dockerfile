@@ -19,6 +19,9 @@ RUN true && \
         iputils-ping \
         nano \
         vim \
+        jq \
+        watch \
+        screen \
         netcat \
         sngrep \
         curl \
