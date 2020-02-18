@@ -222,18 +222,21 @@ def do_teardown(config_data, no_teardown, apiurl, stored_responses):
                 if apiurl is None:
                     click.echo("No API has been defined, quit!")
                     raise click.Abort()
+                https_verify = teardown_config.get('https_verify', True)
                 store_response = teardown_config.get('store_response', None)
                 if store_response:
                     stored_responses[store_response] = api_client(
                         apiurl=apiurl,
                         config=teardown_config,
                         stored_responses=stored_responses,
+                        https_verify=https_verify,
                     )
                 else:
                     api_client(
                         apiurl=apiurl,
                         config=teardown_config,
                         stored_responses=stored_responses,
+                        https_verify=https_verify,
                     )
             elif teardown_config.get('type', None) == 'kamailio_xhttp':
                 kamailioXHTTP(teardown_config)
