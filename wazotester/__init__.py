@@ -110,17 +110,21 @@ def wazotester(
                     click.echo("No API has been defined, quit!")
                     raise click.Abort()
                 store_response = setup_config.get('store_response', None)
+                https_verify = setup_config.get('https_verify', True)
+                apiurl = setup_config.get('api_url', apiurl)
                 if store_response:
                     stored_responses[store_response] = api_client(
                         apiurl=apiurl,
                         config=setup_config,
                         stored_responses=stored_responses,
+                        https_verify=https_verify,
                     )
                 else:
                     api_client(
                         apiurl=apiurl,
                         config=setup_config,
                         stored_responses=stored_responses,
+                        https_verify=https_verify,
                     )
     else:
         click.echo("Skipping setup...")

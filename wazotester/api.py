@@ -14,13 +14,15 @@ from uuid import uuid4
 RE_VARIABLE = re.compile(r'\{([^}\.]+)\.([^}]+)\}').search
 
 
-def api_client(apiurl: str, config: dict, stored_responses: dict):
+def api_client(apiurl: str, config: dict, stored_responses: dict, https_verify: bool):
     uri = config.get('uri', '/')
     method = config.get('method', 'POST')
     payload = config.get('payload', None)
+    raw_payload = config.get('raw_payload', None)
     stored_responses['random'] = {'uuid4': uuid4()}
     ipaddr = socket.gethostbyname(socket.gethostname())
     stored_responses['ipaddr'] = {'ip': ipaddr}
+    response_codes = [200, 204]
 
     variable_match = RE_VARIABLE(uri)
     if variable_match is not None:
@@ -40,15 +42,21 @@ def api_client(apiurl: str, config: dict, stored_responses: dict):
             payload[k] = v.replace(
                 variable_match.group(0), str(stored_response[variable_match.group(2)])
             )
+    elif raw_payload:
+        payload = raw_payload
+
     if method == 'POST':
-        response = requests.post("%s%s" % (apiurl, uri), json=payload)
-        if response.status_code != 200:
+        response = requests.post("%s%s" % (apiurl, uri), json=payload, verify=https_verify)
+        if response.status_code not in response_codes:
             sys.exit(1)
-        data = json.loads(response.text)
-        if isinstance(data, dict):
-            return data
-        else:
+        try:
+            data = json.loads(response.text)
+            if isinstance(data, dict):
+                return data
+            else:
+                return None
+        except Exception:
             return None
     elif method == 'DELETE':
-        response = requests.delete("%s%s" % (apiurl, uri))
+        response = requests.delete("%s%s" % (apiurl, uri), verify=https_verify)
         return response.status_code == 200
