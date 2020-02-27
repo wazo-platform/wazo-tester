@@ -53,7 +53,7 @@ from .sipp import SippWorker
     default=None,
     help='Initialize the Python random machine with this seed value.',
 )
-@click.option('-a', '--apiurl', default='http://router-confd:8000', show_default=True)
+@click.option('-a', '--apiurl', default='http://router-confd:9600', show_default=True)
 @click.option(
     "--no-setup",
     is_flag=True,
