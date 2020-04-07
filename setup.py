@@ -13,14 +13,14 @@ with open('LICENSE') as f:
 
 setuptools.setup(
     name='wazotester',
-    version='1.1',
+    version='1.2',
     author='Wazo Authors',
     author_email='dev@wazo.community',
     description='Wazo Router Server Daemon',
     long_description=readme,
     long_description_content_type="text/markdown",
     license=license,
-    url='http://www.wazo-platform.org/',
+    url='https://www.wazo-platform.org/',
     install_requires=[
         'Click>=7.0',
         'PyYAML>=3.13',
