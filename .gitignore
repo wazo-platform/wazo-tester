@@ -45,7 +45,6 @@ coverage.xml
 # Virtual env
 venv/
 .venv/
-wazo-tester/
 
 # Visual Studio Code
 .vscode/
