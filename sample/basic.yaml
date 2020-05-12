@@ -63,7 +63,7 @@ teardown:
     method: DELETE
     uri: "/tenants/{tenant.id}"
   - type: kamailio_xhttp
-    uri: http://router_secondary:9600/rpc
+    uri: http://router_secondary:9601/rpc
     method: POST
     payload:
       jsonrpc: "2.0"
@@ -73,7 +73,7 @@ teardown:
         type: "int"
         value: 0
       id: "1"
-    
+
 workers:
   - type: sipp
     scenario: "basic.xml"
@@ -90,7 +90,7 @@ workers:
       to_domain: "{domain.domain}"
       to_port: "5060"
   - type: kamailio_xhttp
-    uri: http://router:9600/rpc
+    uri: http://router:9601/rpc
     method: POST
     delay: 10
     payload:
@@ -101,4 +101,3 @@ workers:
         type: "int"
         value: 1
       id: "1"
-  
