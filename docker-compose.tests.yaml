@@ -2,7 +2,7 @@
 version: '2'
 services:
   tests:
-    image: 'wazopbx/wazo-tester:tests'
+    image: 'wazoplatform/wazo-tester:tests'
     command: ["sleep", "3600"]
     volumes:
       - .:/src

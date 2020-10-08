@@ -1,5 +1,5 @@
 dockerfile:
-	docker build -t wazopbx/wazo-tester:latest -f Dockerfile .
+	docker build -t wazoplatform/wazo-tester:latest -f Dockerfile .
 
 venv:
 	virtualenv -p python3 venv
