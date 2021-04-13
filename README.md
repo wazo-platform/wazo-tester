@@ -85,3 +85,4 @@ It implements two methods:
 * kamailio_xhttp
 
 The `api` type is the same as for `setup` and `kamailio_xhttp` is the same as for the `workers` but it's used without a delay and without threading.
+
